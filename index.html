@@ -2,27 +2,125 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Animalart</title>
+	<title>Sports Gifs</title>
 
-	<link ref="stylesheet" type="style/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="style.css">
 
 </head>
 <body>
-	
-	<div id="animalButtons">
+
+<div class="container">
+
+	<h1>Sports GIF Time-pass along to your friends</h1>
+
+	<div id="buttonsView">
 	</div>
 
-	<form id="animal-form">
-		<label for="animal-input">Add an animal</label>
-	
-		<input id="addAnimal" type="submit" value="Submit">
-	</form>
+	<div id="form">
+		<form id="team-form">
+			<label for="team-input">Add Another team, if you dare</label>
+			<input type="text" id="team-input">
 
-	<div id="animals">
+			<input id="addTeam" type="submit" value="Go for It">
+		</form>
+		<br><br><br>
 	</div>
+	<br><br>
+	<div id="gifsView"></div>
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"</script>
-	<!-- <script src="js.file"></script> -->
 	
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+
+	<script type="text/javascript">
+	
+	var teams = ["Buffalo Bills",
+	"Boston Red Sox",
+	"Syracuse Orange",
+	"Detroit Pistons",
+	"St. Louis Cardinals",
+	"Buffalo Sabres",
+	"Portland Trail Blazers",
+	"Tampa Bay Buccaneers",];
+
+// creates buttons for each of these
+function addButtons(){ 
+	
+	$('#buttonsView').empty();
+	
+	for (var i = 0; i < teams.length; i++){
+		
+		var a = $('<button>') 
+		a.addClass('team'); 
+		a.attr('data-name', teams[i]); 
+		a.text(teams[i]); 
+		$('#buttonsView').append(a); 
+	}
+}
+
+// handles addShow button event
+$("#addTeam").on("click", function(){
+
+	
+	var team = $("#team-input").val().trim();
+	
+	teams.push(team);
+	
+	addButtons();
+	
+	return false; 
+})
+
+// function to display gifs
+function displayGifs(){
+	var team = $(this).attr("data-name");
+	var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + team + "&limit=9&api_key=dc6zaTOxFJmzC";
+
+		//ajax call
+		$.ajax({url: queryURL, method: "GET"}).done(function (response) {
+			console.log(response.data);
+			
+			var results = response.data;
+			
+			for (var i = 0; i < results.length; i++) {
+				
+				var gifDiv = $('<div class=gifs>');
+				var teamGif = $('<img>');
+					teamGif.attr('src', results[i].images.fixed_height_still.url);
+					teamGif.attr('title', "Rating: " + results[i].rating);
+					teamGif.attr('data-still', results[i].images.fixed_height_still.url);
+					teamGif.attr('data-state', 'still');
+					teamGif.addClass('gif');
+					teamGif.attr('data-animate', results[i].images.fixed_height.url);
+					gifDiv.append(teamGif)
+				$("#gifsView").prepend(gifDiv);
+			}
+			
+		});
+}
+
+// function for animating gifs
+$(document).on('click', '.gif', function(){
+	var state = $(this).attr('data-state');
+		if ( state == 'still'){
+                $(this).attr('src', $(this).data('animate'));
+                $(this).attr('data-state', 'animate');
+            }else{
+                $(this).attr('src', $(this).data('still'));
+                $(this).attr('data-state', 'still');
+            };
+});
+
+
+
+// function for displaying show gifs
+$(document).on("click", ".team", displayGifs);
+
+// initially calls the makeButtons function
+addButtons();
+
+</script>
 </body>
 </html>
